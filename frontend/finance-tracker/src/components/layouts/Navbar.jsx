@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import SideMenu from './SideMenu';
-import { HiOutlineMenu, HiOutlineX } from 'react-icons/hi';
+import { HiOutlineMenu, HiOutlineX, HiOutlineDownload } from 'react-icons/hi';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import CharAvatar from '../Cards/CharAvatar';
@@ -13,21 +13,71 @@ const Navbar = ({ activeMenu }) => {
   const navigate = useNavigate();
   const [openUserMenu, setOpenUserMenu] = React.useState(false);
   const [openLogoutModal, setOpenLogoutModal] = React.useState(false);
+  const [deferredPrompt, setDeferredPrompt] = React.useState(null);
+  const [isStandalone, setIsStandalone] = React.useState(false);
+
+  React.useEffect(() => {
+    // Check if already installed
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+      setIsStandalone(true);
+    }
+
+    const handlePrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handlePrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handlePrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
   return (
     <>
       <div className='landing-nav w-full flex items-center justify-between px-6 py-4 md:px-12 bg-[var(--color-bg)]/80 backdrop-blur-md fixed top-0 left-0 right-0 z-30 shadow-sm border-b border-[var(--color-border)] transition-colors duration-300'>
-        {/* Menu button only shown on small screens; on desktop sidebar is permanent */}
+        {/* Left side: Logo and Menu button */}
         <div className='flex items-center gap-4'>
           <button className='block lg:hidden text-[var(--color-text)]' onClick={() => setOpenSideMenu(!openSideMenu)}>
             {openSideMenu ? (<HiOutlineX className='text-2xl' />) : (<HiOutlineMenu className='text-2xl' />)}
           </button>
+
+          <div className='flex items-center gap-2 cursor-pointer' onClick={() => navigate('/dashboard')}>
+            <img src="https://lh3.googleusercontent.com/d/1sh3I52WFTUbvX-19WI1u400uuiZ9vgS8" alt="FinRace" className="w-8 h-8" referrerPolicy="no-referrer" />
+            <span className='hidden sm:block text-lg font-bold text-[var(--color-text)] tracking-tight'>FINRACE</span>
+          </div>
         </div>
 
         {/* Right side: show user avatar/name on desktop */}
-        <div className='flex items-center gap-3'>
+        <div className='flex items-center gap-4'>
           {user ? (
-            <div className='hidden md:flex items-center gap-2 relative'>
-              <span className='text-sm font-medium text-[var(--color-text)]'>{user.fullName}</span>
+            <div className='flex items-center gap-3 relative'>
+              {/* Install PWA Button - Always visible if not standalone */}
+              {!isStandalone && (
+                <button
+                  onClick={handleInstallClick}
+                  disabled={!deferredPrompt}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all text-xs font-medium group ${deferredPrompt
+                    ? "bg-purple-600/10 border border-purple-600/20 text-purple-400 hover:bg-purple-600/20 hover:text-purple-300"
+                    : "bg-white/5 border border-white/10 text-white/30 cursor-default"
+                    }`}
+                >
+                  <HiOutlineDownload className={`text-lg transition-transform ${deferredPrompt ? "group-hover:scale-110" : ""}`} />
+                  <span className="hidden sm:inline">
+                    {deferredPrompt ? "Install App" : "App Ready"}
+                  </span>
+                </button>
+              )}
+
+              <div className="hidden md:flex items-center gap-2">
+                <span className='text-sm font-medium text-[var(--color-text)]'>{user.fullName}</span>
+              </div>
 
               <Modal isOpen={openLogoutModal} onClose={() => setOpenLogoutModal(false)} title="Logout">
                 <LogoutConfirm

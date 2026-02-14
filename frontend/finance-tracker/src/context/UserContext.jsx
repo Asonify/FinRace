@@ -3,16 +3,23 @@ import axiosInstance from '../utils/axiosinstance';
 import { API_PATHS } from '../utils/apiPaths';
 import { persistence } from '../utils/persistence';
 
+/**
+ * UserContext:
+ * Centralized state management for user authentication and profile data.
+ * Handles persistent sessions, auto-login, and secure logout flows.
+ */
 const UserContext = createContext();
 export { UserContext };
 
 const UserProvider = ({ children }) => {
-    // Initial state from persistent storage
+    // Sync state with local storage on initialization to prevent flashes of unauthenticated state
     const [user, setUser] = useState(() => persistence.getUser());
 
-    // Initial auth check status: 
-    // If we have a token but no user object, we must check.
-    // If we have both, we assume authenticated but verify in background.
+    /**
+     * Auth Checking Logic:
+     * determines if the app is currently verifying a token against the backend.
+     * Starts as 'true' if we have a token but no user object yet.
+     */
     const [isAuthChecking, setIsAuthChecking] = useState(() => {
         const hasToken = !!persistence.getToken();
         const hasUser = !!persistence.getUser();
@@ -23,7 +30,7 @@ const UserProvider = ({ children }) => {
         return !!(persistence.getToken() && persistence.getUser());
     });
 
-    // Consolidate session clearing
+    // Unified helper to wipe all local auth data
     const clearSession = useCallback(() => {
         setUser(null);
         setIsAuthenticated(false);
@@ -31,11 +38,15 @@ const UserProvider = ({ children }) => {
         persistence.clearUser();
     }, []);
 
-    // Auto-login: Verify token and restore session on app load
+    /**
+     * Session Restoration Hook:
+     * Runs on mount to verify the stored JWT. 
+     * If the network is down, we prioritize the local cached profile to support offline PWA use.
+     */
     useEffect(() => {
         const verifyAndRestoreSession = async () => {
             try {
-                // Request persistent storage for PWA longevity
+                // Hint the browser to keep our storage even when disk space is low (Crucial for PWAs)
                 if (navigator.storage && navigator.storage.persist) {
                     navigator.storage.persist().catch(() => { });
                 }
@@ -61,14 +72,16 @@ const UserProvider = ({ children }) => {
                         persistence.setUser(userData);
                     }
                 } catch (error) {
-                    // ONLY clear session if it's an auth error (401/403)
-                    // If it's a network error or 500, keep the existing session data
+                    /** 
+                     * Error Handling Policy:
+                     * 401/403 -> Token is dead, force logout.
+                     * Any other error -> Server/Network issue, trust local cache for UX continuity.
+                     */
                     if (error.response && [401, 403].includes(error.response.status)) {
                         console.warn('Authentication expired or invalid, clearing session');
                         clearSession();
                     } else {
                         console.log('Network error or server down, keeping existing session');
-                        // If we have local data, we remain authenticated even if offline
                         if (persistence.getToken() && persistence.getUser()) {
                             setIsAuthenticated(true);
                         }
@@ -84,7 +97,7 @@ const UserProvider = ({ children }) => {
         verifyAndRestoreSession();
     }, [clearSession]);
 
-    // Update user state and persistence
+    // Updates both React state and persistent storage for profile-level changes
     const updateUser = useCallback((userData) => {
         setUser(userData);
         setIsAuthenticated(true);
@@ -95,7 +108,7 @@ const UserProvider = ({ children }) => {
         }
     }, []);
 
-    // Login helper
+    // Entry point for new login sessions
     const login = useCallback((userData, token) => {
         persistence.setToken(token);
         persistence.setUser(userData);
@@ -103,11 +116,11 @@ const UserProvider = ({ children }) => {
         setIsAuthenticated(true);
     }, []);
 
-    // Logout helper
     const logout = useCallback(() => {
         clearSession();
     }, [clearSession]);
 
+    // Use memoization to prevent unnecessary context re-renders across the app tree
     const contextValue = useMemo(() => ({
         user,
         updateUser,

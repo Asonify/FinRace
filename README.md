@@ -1,10 +1,10 @@
-# FinBug 🐛💰
+# FinRace 🐛💰
 
-AI-powered personal finance tracker with real-time insights and bill scanning.
+The ultimate AI-powered finance tracking solution.
 
-## 🌐 Live Demo
+## 🚢 Main Deployment
 
-- **Frontend**: [https://finbug.vercel.app](https://finbug.vercel.app)
+- **Frontend**: [https://finrace.vercel.app](https://finrace.vercel.app)
 - **Backend API**: [https://fin-bug.vercel.app](https://fin-bug.vercel.app)
 
 ## ✨ Features
@@ -36,8 +36,8 @@ AI-powered personal finance tracker with real-time insights and bill scanning.
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/Surya-Bytes/FinBug.git
-cd FinBug
+git clone https://github.com/Surya-Bytes/FinRace.git
+cd FinRace
 ```
 
 **2. Setup Backend**

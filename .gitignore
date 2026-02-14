@@ -43,3 +43,13 @@ yarn-error.log*
 .netlify/
 frontend/finance-tracker/.vercel/
 frontend/finance-tracker/.netlify/
+
+# Temporary Files and Artifacts
+backend/*.txt
+backend/test-gemini.js
+backend/list-models.js
+nul
+coverage/
+.temp/
+tmp/
+.cache/

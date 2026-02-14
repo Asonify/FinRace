@@ -51,28 +51,28 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'pwa-192x192.png', 'pwa-512x512.png'],
       manifest: {
-        name: 'FinBug - AI Finance Tracker',
-        short_name: 'FinBug',
+        name: 'FinRace',
+        short_name: 'FinRace',
         description: 'Track your income and expenses with AI-powered insights.',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '#0f172a',
+        background_color: '#0f172a',
         display: 'standalone',
         scope: '/',
         start_url: '/',
         orientation: 'portrait',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'https://lh3.googleusercontent.com/d/1sh3I52WFTUbvX-19WI1u400uuiZ9vgS8',
             sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'https://lh3.googleusercontent.com/d/1sh3I52WFTUbvX-19WI1u400uuiZ9vgS8',
             sizes: '512x512',
             type: 'image/png'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'https://lh3.googleusercontent.com/d/1sh3I52WFTUbvX-19WI1u400uuiZ9vgS8',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable'

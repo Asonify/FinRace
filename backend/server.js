@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load env vars
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -11,14 +11,16 @@ const aiRoutes = require("./routes/aiRoutes");
 const billScanRoutes = require("./routes/billScanRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
 
-
-// Force restart to load env vars
 const app = express();
 
-// CORS configuration - Robust for Vercel/Production deployment
+/**
+ * CORS Setup:
+ * Configures which frontends can talk to this API.
+ * Includes local dev environments and the production Vercel deployment.
+ */
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "https://finbug.vercel.app",
+  "https://finrace.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
   "http://localhost:5000"
@@ -26,13 +28,10 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, or same-origin)
     if (!origin) return callback(null, true);
 
-    // Check if origin is in the allowed list
     const isAllowed = allowedOrigins.some(allowed => {
       if (!allowed) return false;
-      // Case-insensitive comparison and trailing slash check
       const normalizedAllowed = allowed.toLowerCase().replace(/\/$/, "");
       const normalizedOrigin = origin.toLowerCase().replace(/\/$/, "");
       return normalizedAllowed === normalizedOrigin;
@@ -42,7 +41,7 @@ const corsOptions = {
       callback(null, true);
     } else {
       console.log(`CORS blocked for origin: ${origin}`);
-      callback(null, false); // Don't throw error, just tell cors it's not allowed
+      callback(null, false);
     }
   },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -51,25 +50,26 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Apply CORS to all routes
 app.use(cors(corsOptions));
-
-// Handle preflight requests for all routes
 app.options(/.*/, cors(corsOptions));
 
-// Compression middleware for responses
+/**
+ * Performance:
+ * Enables Gzip compression to reduce payload size for faster network transfers.
+ */
 const compression = require('compression');
 app.use(compression({
   filter: (req, res) => {
-    if (req.headers['x-no-compression']) {
-      return false;
-    }
+    if (req.headers['x-no-compression']) return false;
     return compression.filter(req, res);
   },
-  level: 6 // Compression level (0-9, 6 is default)
+  level: 6
 }));
 
-// Security headers
+/**
+ * Security:
+ * Standard headers to prevent common web vulnerabilities (XSS, Sniffing, Clickjacking).
+ */
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -78,19 +78,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Response time header for monitoring - Removed to fix ERR_HTTP_HEADERS_SENT
-// The 'finish' event happens after headers are sent, causing a crash when trying to set a new header.
-app.use((req, res, next) => {
-  // Simple pass-through
-  next();
-});
-
 app.use(express.json({ limit: '10mb', charset: 'utf-8' }));
 app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
 
-// Connect to Database
+// Database Initialization
 connectDB();
 
+/**
+ * API Routing Table:
+ * Maps business modules to their respective route handlers.
+ */
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/income", incomeRoutes);
 app.use("/api/v1/expense", expenseRoutes);
@@ -99,26 +96,24 @@ app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/bill", billScanRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
 
-// Server uploads folder - Not used in Serverless/Memory Storage mode
-// app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
-// Note: Static file serving removed for Vercel deployment
-// Frontend is deployed separately on Vercel
-
 const PORT = process.env.PORT || 5000;
 
-// Root route for health check
+// Health check endpoint for monitoring/deployment heartbeat
 app.get("/", (req, res) => {
   res.status(200).json({ message: "API is running successfully" });
 });
 
+// Entry point for local development
 if (require.main === module) {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server is running on port ${PORT}`);
   });
 }
 
-// Global Error Handler
+/**
+ * Fallback error handler:
+ * Catches all unhandled errors and returns a sanitized JSON response.
+ */
 app.use((err, req, res, next) => {
   console.error("Unhandled Error:", err.stack);
   res.status(500).json({

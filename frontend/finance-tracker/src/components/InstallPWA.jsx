@@ -1,42 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { IoMdClose, IoMdHelpCircle } from "react-icons/io";
-import { LuChevronDown, LuChevronUp } from "react-icons/lu";
-import appIcon from '../assets/finbug.png';
+import { IoMdClose } from "react-icons/io";
+import { FaAndroid, FaApple, FaWindows } from "react-icons/fa";
 
 const InstallPWA = () => {
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
-    const [showInstructions, setShowInstructions] = useState(false);
     const location = useLocation();
 
     useEffect(() => {
-        // Check if app is already installed/standalone
-        if (window.matchMedia('(display-mode: standalone)').matches) {
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
             setIsStandalone(true);
         }
 
-        const handler = (e) => {
+        const handlePrompt = (e) => {
             e.preventDefault();
             setDeferredPrompt(e);
         };
 
-        window.addEventListener('beforeinstallprompt', handler);
+        window.addEventListener('beforeinstallprompt', handlePrompt);
 
-        // Auto open popup after delay
+        // Auto open prompt on landing after 2s regardless of event
         const timer = setTimeout(() => {
-            const alreadyInstalled = window.matchMedia('(display-mode: standalone)').matches;
-            if (!alreadyInstalled) {
+            if (location.pathname === '/' && !isStandalone) {
                 setIsOpen(true);
             }
         }, 2000);
 
         return () => {
-            window.removeEventListener('beforeinstallprompt', handler);
+            window.removeEventListener('beforeinstallprompt', handlePrompt);
             clearTimeout(timer);
-        }
-    }, []);
+        };
+    }, [location.pathname, isStandalone]);
 
     const handleInstallClick = async () => {
         if (!deferredPrompt) return;
@@ -51,77 +48,50 @@ const InstallPWA = () => {
     if (isStandalone || !isOpen || location.pathname !== '/') return null;
 
     return (
-        <div className="fixed bottom-5 right-5 z-[60] bg-white rounded-2xl shadow-xl border border-gray-100 p-4 w-[calc(100%-40px)] sm:w-80 animate-slide-up">
-            {/* Close Button */}
+        <div className="fixed bottom-6 right-6 z-[100] w-[calc(100%-48px)] sm:w-72 bg-white/[0.03] backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-4 animate-slide-up transition-all duration-500 overflow-hidden group">
+            {/* Subtle Gradient Glow */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-600/10 blur-2xl rounded-full pointer-events-none group-hover:bg-purple-600/20 transition-all duration-500"></div>
+
             <button
                 onClick={() => setIsOpen(false)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-50 transition-colors"
+                className="absolute top-2 right-2 text-white opacity-20 hover:opacity-100 p-1.5 rounded-full hover:bg-white/5 transition-all z-20"
             >
-                <IoMdClose size={18} />
+                <IoMdClose size={16} />
             </button>
 
-            <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center shrink-0">
-                    <img src={appIcon} alt="Icon" className="w-8 h-8 object-contain" />
+            <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 bg-white/[0.05] rounded-xl flex items-center justify-center shrink-0 border border-white/10 shadow-xl">
+                        <img
+                            src="https://lh3.googleusercontent.com/d/1sh3I52WFTUbvX-19WI1u400uuiZ9vgS8"
+                            alt="FinRace"
+                            className="w-7 h-7 object-contain"
+                            referrerPolicy="no-referrer"
+                        />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-sm text-white leading-tight truncate">Install FinRace</h3>
+                        <div className="flex items-center gap-1.5 opacity-30 mt-0.5">
+                            <FaAndroid size={10} />
+                            <FaApple size={10} />
+                            <FaWindows size={10} />
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <h3 className="text-sm font-bold text-gray-900">Install FinBug</h3>
-                    <p className="text-xs text-gray-500">Android & Windows</p>
-                </div>
+
+                {deferredPrompt ? (
+                    <button
+                        onClick={handleInstallClick}
+                        className="w-full py-2 bg-white text-black font-bold rounded-lg hover:scale-[1.02] active:scale-[0.98] transition-all text-[11px] shadow-lg"
+                    >
+                        Install App Now
+                    </button>
+                ) : (
+                    <div className="py-2 px-3 rounded-lg bg-white/[0.05] border border-white/5 text-white/40 font-bold text-[10px] text-center">
+                        ✓ App Ready
+                    </div>
+                )}
             </div>
-
-            {deferredPrompt ? (
-                <button
-                    onClick={handleInstallClick}
-                    className="w-full py-2 bg-purple-600 text-white text-sm font-bold rounded-lg hover:bg-purple-700 transition-colors shadow-sm mb-2"
-                >
-                    Install Now
-                </button>
-            ) : (
-                <button
-                    onClick={() => setShowInstructions(!showInstructions)}
-                    className="w-full py-2 bg-gray-100 text-gray-700 text-sm font-bold rounded-lg hover:bg-gray-200 transition-colors mb-2 flex items-center justify-center gap-2"
-                >
-                    {showInstructions ? 'Hide Help' : 'How to Install?'}
-                    {showInstructions ? <LuChevronUp /> : <LuChevronDown />}
-                </button>
-            )}
-
-            {/* Toggle Instructions if Prompt is available but user wants help, OR if prompt not available */}
-            {deferredPrompt && (
-                <button
-                    onClick={() => setShowInstructions(!showInstructions)}
-                    className="w-full text-xs text-gray-400 hover:text-purple-600 flex items-center justify-center gap-1 mb-1"
-                >
-                    Manual Instructions {showInstructions ? <LuChevronUp size={12} /> : <LuChevronDown size={12} />}
-                </button>
-            )}
-
-            {showInstructions && (
-                <div className="mt-3 space-y-3 border-t border-gray-100 pt-3 max-h-60 overflow-y-auto custom-scrollbar">
-                    <div className="flex gap-2 items-start">
-                        <span className="text-sm shrink-0">🤖</span>
-                        <div>
-                            <p className="text-xs font-semibold text-gray-700">Android (Chrome)</p>
-                            <p className="text-[10px] text-gray-500">Tap <span className="font-bold">⋮</span> &gt; <span className="font-bold">Install App</span></p>
-                        </div>
-                    </div>
-                    <div className="flex gap-2 items-start">
-                        <span className="text-sm shrink-0">💻</span>
-                        <div>
-                            <p className="text-xs font-semibold text-gray-700">Windows (Edge/Chrome)</p>
-                            <p className="text-[10px] text-gray-500">Click <span className="font-bold">⬇ Install</span> in URL bar</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-2 items-start">
-                        <span className="text-sm shrink-0">🍏</span>
-                        <div>
-                            <p className="text-xs font-semibold text-gray-700">iOS (Safari)</p>
-                            <p className="text-[10px] text-gray-500">Tap <span className="font-bold">Share ⎋</span> &gt; <span className="font-bold">Add to Home Screen</span></p>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
