@@ -175,7 +175,7 @@ const Landing = () => {
                 <div className="lg:col-span-7 flex flex-col items-start text-left relative z-10">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-8 animate-fade-in">
                         <span className="flex h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
-                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Made by Developers for Humans</span>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Made by FinRace Team</span>
                     </div>
 
                     <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-[1.08] tracking-tight">
@@ -328,8 +328,8 @@ const Landing = () => {
                                     <button
                                         onClick={() => handleQuizClick('q1', 'yes')}
                                         className={`px-5 py-2 text-xs font-semibold rounded-lg border transition-all ${quizAnswers.q1 === 'yes'
-                                                ? 'bg-primary border-primary text-white'
-                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                            ? 'bg-primary border-primary text-white'
+                                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         Yes, absolutely
@@ -337,8 +337,8 @@ const Landing = () => {
                                     <button
                                         onClick={() => handleQuizClick('q1', 'no')}
                                         className={`px-5 py-2 text-xs font-semibold rounded-lg border transition-all ${quizAnswers.q1 === 'no'
-                                                ? 'bg-white border-white text-black'
-                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                            ? 'bg-white border-white text-black'
+                                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         No, I love Excel
@@ -362,8 +362,8 @@ const Landing = () => {
                                     <button
                                         onClick={() => handleQuizClick('q2', 'yes')}
                                         className={`px-5 py-2 text-xs font-semibold rounded-lg border transition-all ${quizAnswers.q2 === 'yes'
-                                                ? 'bg-primary border-primary text-white'
-                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                            ? 'bg-primary border-primary text-white'
+                                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         Yes, constantly
@@ -371,8 +371,8 @@ const Landing = () => {
                                     <button
                                         onClick={() => handleQuizClick('q2', 'no')}
                                         className={`px-5 py-2 text-xs font-semibold rounded-lg border transition-all ${quizAnswers.q2 === 'no'
-                                                ? 'bg-white border-white text-black'
-                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                            ? 'bg-white border-white text-black'
+                                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         No, they work fine
@@ -396,8 +396,8 @@ const Landing = () => {
                                     <button
                                         onClick={() => handleQuizClick('q3', 'yes')}
                                         className={`px-5 py-2 text-xs font-semibold rounded-lg border transition-all ${quizAnswers.q3 === 'yes'
-                                                ? 'bg-primary border-primary text-white'
-                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                            ? 'bg-primary border-primary text-white'
+                                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         Yes, 100%
@@ -405,8 +405,8 @@ const Landing = () => {
                                     <button
                                         onClick={() => handleQuizClick('q3', 'no')}
                                         className={`px-5 py-2 text-xs font-semibold rounded-lg border transition-all ${quizAnswers.q3 === 'no'
-                                                ? 'bg-white border-white text-black'
-                                                : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                                            ? 'bg-white border-white text-black'
+                                            : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                                             }`}
                                     >
                                         Not a priority
