@@ -327,13 +327,13 @@ const Transactions = () => {
                                 <div className="flex items-center gap-3 transition-transform hover:translate-x-1">
                                     <div className="w-1 md:w-4 h-6 md:h-4 bg-income rounded-full border-2 border-white/10 shrink-0"></div>
                                     <p className="text-sm sm:text-base font-semibold text-[var(--color-text)] whitespace-nowrap">
-                                        Income: <span className="font-bold text-[var(--color-text)] text-lg sm:text-xl ml-1">₹{totalIncome.toLocaleString()}</span>
+                                        Income: <span className="font-bold text-[var(--color-text)] text-lg sm:text-xl ml-1">₹{totalIncome.toLocaleString(undefined, { minimumFractionDigits: totalIncome % 1 !== 0 ? 2 : 0, maximumFractionDigits: totalIncome % 1 !== 0 ? 2 : 0 })}</span>
                                     </p>
                                 </div>
                                 <div className="flex items-center gap-3 transition-transform hover:translate-x-1">
                                     <div className="w-1 md:w-4 h-6 md:h-4 bg-expense rounded-full border-2 border-white/10 shrink-0"></div>
                                     <p className="text-sm sm:text-base font-semibold text-[var(--color-text)] whitespace-nowrap">
-                                        Expense: <span className="font-bold text-[var(--color-text)] text-lg sm:text-xl ml-1">₹{totalExpense.toLocaleString()}</span>
+                                        Expense: <span className="font-bold text-[var(--color-text)] text-lg sm:text-xl ml-1">₹{totalExpense.toLocaleString(undefined, { minimumFractionDigits: totalExpense % 1 !== 0 ? 2 : 0, maximumFractionDigits: totalExpense % 1 !== 0 ? 2 : 0 })}</span>
                                     </p>
                                 </div>
                             </div>

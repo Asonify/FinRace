@@ -21,7 +21,12 @@ export const getInitials = (name) => {
 export const addThousandsSeparator = (num) => {
     if (num === null || num === undefined || isNaN(Number(num))) return "";
 
-    const [integerPart, fractionalPart] = Number(num).toString().split(".");
+    const val = Number(num);
+    const hasDecimal = val % 1 !== 0;
+    
+    // Format to 2 decimal places if it has decimal, otherwise format as integer
+    const formattedNum = hasDecimal ? val.toFixed(2) : val.toString();
+    const [integerPart, fractionalPart] = formattedNum.split(".");
     
     // Indian numbering system: first 3 digits, then groups of 2
     // Example: 13558927 -> 1,35,58,927
@@ -32,9 +37,7 @@ export const addThousandsSeparator = (num) => {
         // Add comma before digit if:
         // - After first 3 digits (i === 3)
         // - Then every 2 digits after that (i === 5, 7, 9, 11, ...)
-        // Pattern: i === 3, 5, 7, 9, 11, ... which is i >= 3 && (i - 3) % 2 === 0 && i !== 3? No...
-        // Actually: i === 3, then i === 5 (3+2), i === 7 (5+2), i === 9 (7+2)
-        // So: i === 3 OR (i > 3 && (i - 3) % 2 === 0)
+        // Pattern: i === 3, 5, 7, 9, 11, ...
         if (i > 0 && (i === 3 || (i > 3 && (i - 3) % 2 === 0))) {
             formattedInteger = "," + formattedInteger;
         }

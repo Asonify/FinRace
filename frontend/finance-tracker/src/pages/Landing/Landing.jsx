@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom'
-import { useRef, useContext, useState } from 'react'
+import { useRef, useContext, useState, useEffect } from 'react'
 import { FaDollarSign, FaWallet, FaChartLine, FaLock, FaCheck, FaArrowRight } from 'react-icons/fa'
+import { HiOutlineDownload } from 'react-icons/hi'
 import { UserContext } from '../../context/UserContext'
+import Modal from '../../components/layouts/Modal'
 import toast from 'react-hot-toast'
 import '../../index.css'
 
@@ -14,6 +16,38 @@ const Landing = () => {
     const navigate = useNavigate();
     const contactRef = useRef(null);
     const { isAuthenticated } = useContext(UserContext);
+
+    // PWA Install State
+    const [openInstallModal, setOpenInstallModal] = useState(false);
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [isStandalone, setIsStandalone] = useState(false);
+
+    useEffect(() => {
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+            setIsStandalone(true);
+        }
+
+        const handlePrompt = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+
+        window.addEventListener('beforeinstallprompt', handlePrompt);
+        return () => window.removeEventListener('beforeinstallprompt', handlePrompt);
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                setDeferredPrompt(null);
+            }
+        } else {
+            setOpenInstallModal(true);
+        }
+    };
 
     // Interactive Sandbox State
     const [sandboxTransactions, setSandboxTransactions] = useState([
@@ -46,9 +80,9 @@ const Landing = () => {
      * Parse natural language transaction input in sandbox
      */
     const parseTransaction = (text) => {
-        // Find amount (e.g. 5.50 or $12)
-        const amountMatch = text.match(/\$?\d+(?:\.\d{2})?/);
-        const amount = amountMatch ? parseFloat(amountMatch[0].replace('$', '')) : 10.00;
+        // Find amount (e.g. 5.50, $12, or ₹500)
+        const amountMatch = text.match(/(?:\$|₹|rs\.?|rupees?)?\s?\d+(?:\.\d{2})?/i);
+        const amount = amountMatch ? parseFloat(amountMatch[0].replace(/[^\d.]/g, '')) : 10.00;
 
         // Extract description
         let desc = text.replace(amountMatch ? amountMatch[0] : '', '').trim();
@@ -98,7 +132,7 @@ const Landing = () => {
 
         setSandboxTransactions(prev => [newTx, ...prev]);
         setSandboxInput('');
-        toast.success(`Parsed: "${parsed.desc}" (${parsed.emoji}) for $${parsed.amount.toFixed(2)}`, {
+        toast.success(`Parsed: "${parsed.desc}" (${parsed.emoji}) for ₹${parsed.amount.toFixed(2)}`, {
             icon: '🧠',
             style: {
                 borderRadius: '12px',
@@ -194,6 +228,15 @@ const Landing = () => {
                         <button onClick={() => navigate('/signUp')} className="w-full sm:w-auto px-8 py-4 bg-primary text-white rounded-xl hover:opacity-95 active:scale-98 transition-all text-lg font-semibold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 group">
                             Start Tracking Free <FaArrowRight className="text-sm transition-transform group-hover:translate-x-1" />
                         </button>
+                        {!isStandalone && (
+                            <button
+                                onClick={handleInstallClick}
+                                className="w-full sm:w-auto px-8 py-4 bg-transparent text-primary border border-dashed border-primary/30 rounded-xl hover:bg-primary/5 hover:border-primary/50 transition-all text-lg font-semibold flex items-center justify-center gap-2 cursor-pointer group"
+                            >
+                                <HiOutlineDownload className="text-xl transition-transform group-hover:scale-110" />
+                                <span>Download App</span>
+                            </button>
+                        )}
                     </div>
 
                     {/* Handwritten annotation details */}
@@ -225,7 +268,7 @@ const Landing = () => {
                         <div className="mb-5">
                             <span className="text-xs text-white/40 uppercase tracking-widest font-semibold block">Interactive Budget Widget</span>
                             <div className="flex justify-between items-baseline mt-1">
-                                <span className="text-3xl font-extrabold tracking-tight">${(budgetLimit - totalSpent).toFixed(2)}</span>
+                                <span className="text-3xl font-extrabold tracking-tight">₹{(budgetLimit - totalSpent).toFixed(2)}</span>
                                 <span className="text-xs text-white/50 font-medium">remaining this week</span>
                             </div>
                         </div>
@@ -245,7 +288,7 @@ const Landing = () => {
                                 type="text"
                                 value={sandboxInput}
                                 onChange={(e) => setSandboxInput(e.target.value)}
-                                placeholder="Try typing 'Coffee $4.50' or 'Uber $15'"
+                                placeholder="Try typing 'Coffee ₹4.50' or 'Uber ₹15'"
                                 className="w-full pl-4 pr-24 py-3.5 bg-white/5 focus:bg-white/8 hover:bg-white/7 border border-white/10 focus:border-primary/50 focus:ring-1 focus:ring-primary/30 rounded-xl text-sm outline-none transition-all placeholder:text-white/30"
                             />
                             <button
@@ -267,7 +310,7 @@ const Landing = () => {
                                             <span className="text-[11px] text-white/40 font-medium tracking-wide uppercase mt-0.5 block">{tx.category}</span>
                                         </div>
                                     </div>
-                                    <span className="text-sm font-bold text-white/90">-${tx.amount.toFixed(2)}</span>
+                                    <span className="text-sm font-bold text-white/90">-₹{tx.amount.toFixed(2)}</span>
                                 </div>
                             ))}
                         </div>
@@ -499,6 +542,44 @@ const Landing = () => {
                     <p className="text-xs text-white/40">© 2026 FinRace. Built by hand with absolute care.</p>
                 </div>
             </footer>
+
+            <Modal isOpen={openInstallModal} onClose={() => setOpenInstallModal(false)} title="Install FinRace App">
+                <div className="space-y-4 text-left">
+                    <p className="text-sm text-[var(--color-text)] opacity-80">
+                        To install FinRace as an app on your device, follow these instructions:
+                    </p>
+                    
+                    <div className="space-y-3">
+                        <div className="p-3 bg-[var(--color-input)] border border-[var(--color-border)] rounded-lg">
+                            <p className="text-sm font-bold text-primary mb-1">Android (Chrome)</p>
+                            <p className="text-xs text-[var(--color-text)] opacity-70">
+                                Tap the menu button (three dots) in the top-right corner of Chrome, then select <strong>Install app</strong> or <strong>Add to Home screen</strong>.
+                            </p>
+                        </div>
+                        <div className="p-3 bg-[var(--color-input)] border border-[var(--color-border)] rounded-lg">
+                            <p className="text-sm font-bold text-[#D4AF37] mb-1">iOS (Safari)</p>
+                            <p className="text-xs text-[var(--color-text)] opacity-70">
+                                Tap the <strong>Share</strong> button (arrow icon at the bottom of the screen), scroll down, and select <strong>Add to Home Screen</strong>.
+                            </p>
+                        </div>
+                        <div className="p-3 bg-[var(--color-input)] border border-[var(--color-border)] rounded-lg">
+                            <p className="text-sm font-bold text-primary mb-1">Desktop (Chrome/Edge)</p>
+                            <p className="text-xs text-[var(--color-text)] opacity-70">
+                                Click the install icon (a monitor with a down arrow) on the right side of the address bar at the top of your browser.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex justify-end pt-2">
+                        <button
+                            onClick={() => setOpenInstallModal(false)}
+                            className="px-6 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition text-sm font-semibold cursor-pointer"
+                        >
+                            Got it
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     )
 }

@@ -43,7 +43,7 @@ const TransactionInfoCard = React.memo(({ title, icon, date, amount, type, hideD
                     {/* Amount with Trend Icon */}
                     <div className={`flex items-center gap-1.5 ${getAmountStyles()}`}>
                         <h6 className="text-sm sm:text-base font-bold whitespace-nowrap">
-                            {type === "income" ? "+" : "-"}₹{amount.toLocaleString()}
+                            {type === "income" ? "+" : "-"}₹{amount.toLocaleString(undefined, { minimumFractionDigits: amount % 1 !== 0 ? 2 : 0, maximumFractionDigits: amount % 1 !== 0 ? 2 : 0 })}
                         </h6>
                         {type === "income" ? (
                             <LuTrendingUp className="text-sm sm:text-base flex-shrink-0" />

@@ -97,7 +97,7 @@ const TransactionItem = React.memo(({ transaction, onImageClick, onDeleteConfirm
                 {/* Amount Display */}
                 <div className={`flex items-center gap-1.5 font-extrabold text-sm sm:text-base lg:order-1 ${transaction.type === 'income' ? 'text-income' : 'text-expense'}`}>
                     <span className="whitespace-nowrap">
-                        {transaction.type === 'income' ? '+' : '-'}₹{Number(transaction.amount).toLocaleString()}
+                        {transaction.type === 'income' ? '+' : '-'}₹{Number(transaction.amount).toLocaleString(undefined, { minimumFractionDigits: Number(transaction.amount) % 1 !== 0 ? 2 : 0, maximumFractionDigits: Number(transaction.amount) % 1 !== 0 ? 2 : 0 })}
                     </span>
                     {transaction.type === 'income' ? (
                         <LuTrendingUp className="text-sm sm:text-base" />

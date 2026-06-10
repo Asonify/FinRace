@@ -42,7 +42,7 @@ const CustomDualLineChart = React.memo(({ data = [], lines = [], xAxisKey = 'dat
                     </p>
                     {payload.map((entry, index) => (
                         <p key={index} className="text-sm" style={{ color: entry.color }}>
-                            {entry.name}: ₹{entry.value.toLocaleString()}
+                            {entry.name}: ₹{entry.value.toLocaleString(undefined, { minimumFractionDigits: entry.value % 1 !== 0 ? 2 : 0, maximumFractionDigits: entry.value % 1 !== 0 ? 2 : 0 })}
                         </p>
                     ))}
                 </div>
