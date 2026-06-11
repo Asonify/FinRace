@@ -34,14 +34,14 @@ export const SIDE_MENU_DATA = [
   },
   {
     id: "05",
-    label: "Settings",
-    icon: LuSettings,
-    path: "/settings",
-  },
-  {
-    id: "06",
     label: "Subscription",
     icon: LuCreditCard,
     path: "/subscription",
+  },
+  {
+    id: "06",
+    label: "Settings",
+    icon: LuSettings,
+    path: "/settings",
   },
 ];
