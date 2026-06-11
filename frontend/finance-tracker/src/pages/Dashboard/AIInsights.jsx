@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axiosInstance from "../../utils/axiosinstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { addThousandsSeparator } from "../../utils/helper";
+import UpgradeSubscriptionModal from "../../components/layouts/UpgradeSubscriptionModal";
 import {
   LuBrain,
   LuRefreshCw,
@@ -18,6 +19,8 @@ const AIInsights = ({ onRefresh }) => {
   const [error, setError] = useState(null);
   const [insufficientData, setInsufficientData] = useState(false);
   const [usageStats, setUsageStats] = useState(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState("");
 
   const fetchUsageStats = async () => {
     try {
@@ -90,8 +93,13 @@ const AIInsights = ({ onRefresh }) => {
     } catch (err) {
       console.error("Failed to fetch AI analysis:", err);
 
-      // Handle rate limit error (429)
-      if (err.response?.status === 429) {
+      // Handle subscription limit reached (403) or upgrade required
+      if (err.response?.status === 403 || err.response?.data?.upgradeRequired) {
+        const msg = err.response?.data?.message || "Monthly AI insights limit reached for your current plan.";
+        setUpgradeMessage(msg);
+        setShowUpgradeModal(true);
+        setError(msg);
+      } else if (err.response?.status === 429) {
         const limitData = err.response.data;
         setError(`Daily limit reached: You can generate ${limitData.limit} AI insights per day. Used: ${limitData.used}/${limitData.limit}. Resets at midnight.`);
         toast.error("Daily AI insights limit reached");
@@ -637,6 +645,12 @@ const AIInsights = ({ onRefresh }) => {
 
         {renderContent()}
       </div>
+      <UpgradeSubscriptionModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        limitType="insights"
+        message={upgradeMessage}
+      />
     </DashboardLayout>
   );
 };

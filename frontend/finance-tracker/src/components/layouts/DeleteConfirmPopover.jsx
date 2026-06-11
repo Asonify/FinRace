@@ -6,7 +6,7 @@ const DeleteConfirmPopover = ({ isOpen, onClose, onConfirm, triggerRef }) => {
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (popoverRef.current && !popoverRef.current.contains(event.target) && 
+            if (popoverRef.current && !popoverRef.current.contains(event.target) &&
                 triggerRef?.current && !triggerRef.current.contains(event.target)) {
                 onClose();
             }
@@ -28,12 +28,12 @@ const DeleteConfirmPopover = ({ isOpen, onClose, onConfirm, triggerRef }) => {
     const popoverWidth = 280;
     const popoverHeight = 130;
     const margin = 12;
-    
+
     // Position popover to the LEFT of the delete button (since button is on the right side)
     // Align vertically centered with the button
     const top = buttonRect.top + (buttonRect.height / 2) - (popoverHeight / 2);
     const left = buttonRect.left - popoverWidth - margin;
-    
+
     const popoverStyle = {
         position: 'fixed',
         top: `${Math.max(margin, Math.min(top, window.innerHeight - popoverHeight - margin))}px`,
@@ -49,7 +49,7 @@ const DeleteConfirmPopover = ({ isOpen, onClose, onConfirm, triggerRef }) => {
         >
             <div className="bg-[var(--color-card)] rounded-lg shadow-xl border border-[var(--color-border)] overflow-hidden relative" style={{ width: `${popoverWidth}px` }}>
                 {/* Arrow pointing to the delete button on the right */}
-                <div 
+                <div
                     className="absolute top-1/2 -translate-y-1/2 w-0 h-0"
                     style={{
                         right: '-10px',
@@ -63,14 +63,14 @@ const DeleteConfirmPopover = ({ isOpen, onClose, onConfirm, triggerRef }) => {
                         Are you sure you want to delete this? This action cannot be undone.
                     </p>
                     <div className="flex justify-end gap-2">
-                        <button 
+                        <button
                             type="button"
                             className="px-3 py-1.5 text-sm text-[var(--color-text)] opacity-70 hover:opacity-100 hover:bg-[var(--color-input)] rounded-lg transition-all"
                             onClick={onClose}
                         >
                             Cancel
                         </button>
-                        <button 
+                        <button
                             type="button"
                             className="px-3 py-1.5 text-sm bg-red-600 text-white hover:bg-red-700 rounded-lg transition-colors"
                             onClick={onConfirm}

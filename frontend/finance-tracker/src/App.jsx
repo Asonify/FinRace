@@ -18,6 +18,10 @@ const Transactions = lazy(() => import("./pages/Dashboard/Transactions"));
 const AIInsights = lazy(() => import("./pages/Dashboard/AIInsights"));
 const Landing = lazy(() => import("./pages/Landing/Landing"));
 const Settings = lazy(() => import("./pages/Dashboard/Settings"));
+const UdhaarHome = lazy(() => import("./pages/Dashboard/UdhaarHome"));
+const AddBorrower = lazy(() => import("./pages/Dashboard/AddBorrower"));
+const UdhaarDetails = lazy(() => import("./pages/Dashboard/UdhaarDetails"));
+const Subscription = lazy(() => import("./pages/Dashboard/Subscription"));
 
 // Loading component while checking auth
 const AuthLoadingScreen = () => (
@@ -56,8 +60,12 @@ const AppContent = () => {
             <Route path="/signUp" exact element={<SignUp />} />
             <Route path="/dashboard" exact element={<Home />} />
             <Route path="/transactions" exact element={<Transactions />} />
+            <Route path="/udhaar" exact element={<UdhaarHome />} />
+            <Route path="/udhaar/add-borrower" exact element={<AddBorrower />} />
+            <Route path="/udhaar/:id" exact element={<UdhaarDetails />} />
             <Route path="/ai-insights" exact element={<AIInsights />} />
             <Route path="/settings" exact element={<Settings />} />
+            <Route path="/subscription" exact element={<Subscription />} />
           </Routes>
         </Suspense>
       </Router>

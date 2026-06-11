@@ -12,6 +12,7 @@ import {
 import axiosInstance from "../../utils/axiosinstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { toast } from "react-hot-toast";
+import UpgradeSubscriptionModal from "../layouts/UpgradeSubscriptionModal";
 
 const UnifiedTransactionForm = ({ onAddTransaction, submitHandlerRef }) => {
     const [transactionType, setTransactionType] = useState("expense"); // 'income' or 'expense'
@@ -25,6 +26,8 @@ const UnifiedTransactionForm = ({ onAddTransaction, submitHandlerRef }) => {
 
     const [imagePreview, setImagePreview] = useState(null);
     const [scanning, setScanning] = useState(false);
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+    const [upgradeMessage, setUpgradeMessage] = useState("");
     const transactionRef = useRef(transaction);
     const typeRef = useRef(transactionType);
 
@@ -82,7 +85,12 @@ const UnifiedTransactionForm = ({ onAddTransaction, submitHandlerRef }) => {
             }
         } catch (error) {
             console.error("Error scanning bill:", error);
-            toast.error(error.response?.data?.message || "Failed to scan bill");
+            if (error.response?.status === 403 || error.response?.data?.upgradeRequired) {
+                setUpgradeMessage(error.response?.data?.message || "Monthly bill scan limit reached for your current plan.");
+                setShowUpgradeModal(true);
+            } else {
+                toast.error(error.response?.data?.message || "Failed to scan bill");
+            }
         } finally {
             setScanning(false);
         }
@@ -263,6 +271,12 @@ const UnifiedTransactionForm = ({ onAddTransaction, submitHandlerRef }) => {
                     )}
                 </div>
             </div>
+            <UpgradeSubscriptionModal
+                isOpen={showUpgradeModal}
+                onClose={() => setShowUpgradeModal(false)}
+                limitType="billScans"
+                message={upgradeMessage}
+            />
         </div>
     );
 };

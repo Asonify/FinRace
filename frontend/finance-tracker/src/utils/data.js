@@ -3,6 +3,8 @@ import {
   LuArrowLeftRight,
   LuBrain,
   LuSettings,
+  LuHandCoins,
+  LuCreditCard,
 } from "react-icons/lu";
 
 export const SIDE_MENU_DATA = [
@@ -20,14 +22,26 @@ export const SIDE_MENU_DATA = [
   },
   {
     id: "03",
+    label: "Udhaar",
+    icon: LuHandCoins,
+    path: "/udhaar",
+  },
+  {
+    id: "04",
     label: "AI Insights",
     icon: LuBrain,
     path: "/ai-insights",
   },
   {
-    id: "04",
+    id: "05",
     label: "Settings",
     icon: LuSettings,
     path: "/settings",
+  },
+  {
+    id: "06",
+    label: "Subscription",
+    icon: LuCreditCard,
+    path: "/subscription",
   },
 ];

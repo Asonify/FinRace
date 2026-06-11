@@ -8,6 +8,14 @@ const UserSchema = new mongoose.Schema({
   profileImageUrl: {
     type: String, default: null
   },
+  stripeCustomerId: { type: String, default: null },
+  subscriptionPlan: {
+    type: String,
+    enum: ['Free', 'Basic', 'Pro', 'Premium'],
+    default: 'Free'
+  },
+  subscriptionStatus: { type: String, default: 'inactive' },
+  currentPeriodEnd: { type: Date, default: null },
   // AI Usage Tracking
   aiUsage: {
     insightsCount: { type: Number, default: 0 },

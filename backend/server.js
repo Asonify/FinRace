@@ -10,6 +10,10 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const billScanRoutes = require("./routes/billScanRoutes");
 const transactionRoutes = require("./routes/transactionRoutes");
+const udhaarRoutes = require("./routes/udhaarRoutes");
+
+// Initialize automated cron scheduler services
+require('./services/reminderScheduler');
 
 const app = express();
 
@@ -78,6 +82,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Stripe webhook raw handler
+const { handleWebhook } = require('./controllers/stripeController');
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), handleWebhook);
+
 app.use(express.json({ limit: '10mb', charset: 'utf-8' }));
 app.use(express.urlencoded({ extended: true, charset: 'utf-8' }));
 
@@ -88,6 +96,12 @@ connectDB();
  * API Routing Table:
  * Maps business modules to their respective route handlers.
  */
+const stripeRoutes = require("./routes/stripeRoutes");
+const subscriptionRoutes = require("./routes/subscriptionRoutes");
+
+app.use("/api/stripe", stripeRoutes);
+app.use("/api/subscription", subscriptionRoutes);
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/income", incomeRoutes);
 app.use("/api/v1/expense", expenseRoutes);
@@ -95,6 +109,7 @@ app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/ai", aiRoutes);
 app.use("/api/v1/bill", billScanRoutes);
 app.use("/api/v1/transaction", transactionRoutes);
+app.use("/api/v1/udhaar", udhaarRoutes);
 
 const PORT = process.env.PORT || 5000;
 

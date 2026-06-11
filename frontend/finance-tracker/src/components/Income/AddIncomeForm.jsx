@@ -12,6 +12,7 @@ import {
 import axiosInstance from "../../utils/axiosinstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { toast } from "react-hot-toast";
+import UpgradeSubscriptionModal from "../layouts/UpgradeSubscriptionModal";
 
 const AddIncomeForm = ({ onAddIncome, submitHandlerRef }) => {
   const [income, setIncome] = useState({
@@ -24,6 +25,8 @@ const AddIncomeForm = ({ onAddIncome, submitHandlerRef }) => {
 
   const [imagePreview, setImagePreview] = useState(null);
   const [scanning, setScanning] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState("");
   const incomeRef = useRef(income);
 
   // Keep ref in sync with state
@@ -76,7 +79,12 @@ const AddIncomeForm = ({ onAddIncome, submitHandlerRef }) => {
       }
     } catch (error) {
       console.error("Error scanning receipt:", error);
-      toast.error(error.response?.data?.message || "Failed to scan receipt");
+      if (error.response?.status === 403 || error.response?.data?.upgradeRequired) {
+        setUpgradeMessage(error.response?.data?.message || "Monthly receipt scan limit reached for your current plan.");
+        setShowUpgradeModal(true);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to scan receipt");
+      }
     } finally {
       setScanning(false);
     }
@@ -227,6 +235,12 @@ const AddIncomeForm = ({ onAddIncome, submitHandlerRef }) => {
           )}
         </div>
       </div>
+      <UpgradeSubscriptionModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        limitType="billScans"
+        message={upgradeMessage}
+      />
     </div>
   );
 };

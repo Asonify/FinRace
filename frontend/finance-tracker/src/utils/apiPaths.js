@@ -43,4 +43,29 @@ export const API_PATHS = {
     TRANSACTION: {
         BULK_UPLOAD: "/api/v1/transaction/bulk-upload",
     },
+    UDHAAR: {
+        GET_ALL: "/api/v1/udhaar",
+        GET_BY_ID: (id) => `/api/v1/udhaar/${id}`,
+        ADD: "/api/v1/udhaar/add",
+        UPDATE: (id) => `/api/v1/udhaar/${id}`,
+        DELETE: (id) => `/api/v1/udhaar/${id}`,
+        ADD_PAYMENT: "/api/v1/udhaar/payments",
+        EDIT_PAYMENT: (paymentId) => `/api/v1/udhaar/payments/${paymentId}`,
+        DELETE_PAYMENT: (paymentId) => `/api/v1/udhaar/payments/${paymentId}`,
+        GET_REMINDERS: "/api/v1/udhaar/reminders",
+        UPDATE_REMINDER: (reminderId) => `/api/v1/udhaar/reminders/${reminderId}`,
+        DELETE_REMINDER: (reminderId) => `/api/v1/udhaar/reminders/${reminderId}`,
+        EXPORT_EXCEL: "/api/v1/udhaar/export/excel",
+        EXPORT_CSV: "/api/v1/udhaar/export/csv",
+        BACKUP: "/api/v1/udhaar/backup",
+        RESTORE: "/api/v1/udhaar/restore",
+    },
+    STRIPE: {
+        CHECKOUT: "/api/stripe/create-checkout-session",
+        PORTAL: "/api/stripe/create-portal-session",
+        MOCK_SUCCESS: "/api/stripe/mock-success",
+    },
+    SUBSCRIPTION: {
+        GET_PLAN: "/api/subscription/current-plan",
+    },
 };

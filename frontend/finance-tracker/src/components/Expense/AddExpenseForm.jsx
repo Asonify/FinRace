@@ -12,6 +12,7 @@ import {
 import axiosInstance from "../../utils/axiosinstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import { toast } from "react-hot-toast";
+import UpgradeSubscriptionModal from "../layouts/UpgradeSubscriptionModal";
 
 const AddExpenseForm = ({ openAddExpense, submitHandlerRef }) => {
   const [expense, setExpense] = useState({
@@ -24,6 +25,8 @@ const AddExpenseForm = ({ openAddExpense, submitHandlerRef }) => {
 
   const [imagePreview, setImagePreview] = useState(null);
   const [scanning, setScanning] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState("");
   const expenseRef = useRef(expense);
 
   // Keep ref in sync with state
@@ -78,7 +81,12 @@ const AddExpenseForm = ({ openAddExpense, submitHandlerRef }) => {
       }
     } catch (error) {
       console.error("Error scanning bill:", error);
-      toast.error(error.response?.data?.message || "Failed to scan bill");
+      if (error.response?.status === 403 || error.response?.data?.upgradeRequired) {
+        setUpgradeMessage(error.response?.data?.message || "Monthly bill scan limit reached for your current plan.");
+        setShowUpgradeModal(true);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to scan bill");
+      }
     } finally {
       setScanning(false);
     }
@@ -229,6 +237,12 @@ const AddExpenseForm = ({ openAddExpense, submitHandlerRef }) => {
           )}
         </div>
       </div>
+      <UpgradeSubscriptionModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        limitType="billScans"
+        message={upgradeMessage}
+      />
     </div>
   );
 };
