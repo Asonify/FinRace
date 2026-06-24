@@ -15,13 +15,17 @@ exports.createCheckoutSession = async (req, res) => {
     return res.status(400).json({ message: 'Invalid subscription plan' });
   }
 
-  const prices = {
-    'Basic': 100,
-    'Pro': 250,
-    'Premium': 450
+  const priceIds = {
+    'Basic': process.env.STRIPE_PRICE_BASIC,
+    'Pro': process.env.STRIPE_PRICE_PRO,
+    'Premium': process.env.STRIPE_PRICE_PREMIUM
   };
 
-  const planPrice = prices[planName];
+  const planPriceId = priceIds[planName];
+
+  if (!planPriceId && !isMockMode) {
+    return res.status(500).json({ message: `Server error: Missing Stripe Price ID for plan ${planName} in environment variables.` });
+  }
 
   try {
     const user = await User.findById(userId);
@@ -32,7 +36,7 @@ exports.createCheckoutSession = async (req, res) => {
       return res.json({ id: 'mock_session_' + Date.now(), url: mockUrl });
     }
 
-    // Real Stripe Session Creation with inline pricing
+    // Real Stripe Session Creation using pre-configured Price IDs
     let stripeCustomerId = user.stripeCustomerId;
     if (!stripeCustomerId) {
       const customer = await stripe.customers.create({
@@ -48,17 +52,7 @@ exports.createCheckoutSession = async (req, res) => {
       customer: stripeCustomerId,
       payment_method_types: ['card'],
       line_items: [{
-        price_data: {
-          currency: 'inr',
-          product_data: {
-            name: `${planName} Plan`,
-            description: `FinRace Wealth Tracker ${planName} Subscription`,
-          },
-          unit_amount: planPrice * 100, // in paise
-          recurring: {
-            interval: 'month',
-          },
-        },
+        price: planPriceId,
         quantity: 1,
       }],
       mode: 'subscription',

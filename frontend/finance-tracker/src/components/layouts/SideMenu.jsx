@@ -100,18 +100,6 @@ const SideMenu = ({ activeMenu }) => {
                 ))}
             </div>
 
-            {/* Download App Section (Always at Bottom) */}
-            {!isStandalone && (
-                <div className="mt-auto pt-6 border-t border-[var(--color-border)]">
-                    <button
-                        className="w-full flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-all duration-200 border border-dashed border-primary/30 text-primary hover:bg-primary/5 hover:border-primary/50 cursor-pointer"
-                        onClick={handleInstallClick}
-                    >
-                        <HiOutlineDownload className="text-xl" />
-                        <span>Download App</span>
-                    </button>
-                </div>
-            )}
 
             <Modal isOpen={openLogoutModal} onClose={() => setOpenLogoutModal(false)} title="Logout">
                 <LogoutConfirm

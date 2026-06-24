@@ -182,18 +182,6 @@ const Subscription = () => {
               </p>
             </div>
 
-            {currentPlan !== 'Free' && (
-              <div className="pt-6">
-                <button
-                  onClick={handleManageBilling}
-                  disabled={actionLoading}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-[var(--color-input)] hover:bg-white/5 text-white border border-[var(--color-border)] rounded-xl font-bold text-xs transition cursor-pointer disabled:opacity-50"
-                >
-                  <LuExternalLink size={13} />
-                  <span>Stripe Billing Portal</span>
-                </button>
-              </div>
-            )}
           </div>
 
           <div className="lg:col-span-8 card border-[var(--color-border)] p-6 space-y-6">

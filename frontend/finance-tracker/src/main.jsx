@@ -2,6 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
+import { CapacitorUpdater } from '@capgo/capacitor-updater'
+import { Capacitor } from '@capacitor/core'
+
+if (Capacitor.isNativePlatform()) {
+  CapacitorUpdater.notifyAppReady();
+}
 
 // Dev-only: if no user is present, inject a test user to make dashboard visible locally
 if (import.meta.env.DEV) {

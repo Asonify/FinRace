@@ -43,7 +43,7 @@ const AuthLoadingScreen = () => (
 
 // App content that uses UserContext
 const AppContent = () => {
-  const { isAuthChecking } = useContext(UserContext);
+  const { isAuthChecking, isAuthenticated } = useContext(UserContext);
 
   // Show loading screen while checking authentication
   if (isAuthChecking) {
@@ -55,9 +55,9 @@ const AppContent = () => {
       <Router>
         <Suspense fallback={<AuthLoadingScreen />}>
           <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" exact element={<Login />} />
-            <Route path="/signUp" exact element={<SignUp />} />
+            <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Landing />} />
+            <Route path="/login" exact element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />} />
+            <Route path="/signUp" exact element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <SignUp />} />
             <Route path="/dashboard" exact element={<Home />} />
             <Route path="/transactions" exact element={<Transactions />} />
             <Route path="/udhaar" exact element={<UdhaarHome />} />

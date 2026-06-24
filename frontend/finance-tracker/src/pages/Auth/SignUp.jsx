@@ -1,101 +1,86 @@
-import React, { useContext, useState } from "react";
-import AuthLayout from "../../components/layouts/AuthLayout";
-import { useNavigate, Link } from "react-router-dom";
-import { validateEmail } from "../../utils/helper";
-import Input from "../../components/Inputs/Input";
-import ProfilePhotoSelector from "../../components/Inputs/ProfilePhotoSelector";
-import axiosInstance from "../../utils/axiosinstance";
-import { API_PATHS } from "../../utils/apiPaths";
-import { UserContext } from "../../context/UserContext";
-import uploadImage from "../../utils/uploadImage";
+import React, { useContext, useState } from 'react';
+import AuthLayout from '../../components/layouts/AuthLayout';
+import { useNavigate, Link } from 'react-router-dom';
+import { validateEmail } from '../../utils/helper';
+import Input from '../../components/Inputs/Input';
+import axiosInstance from '../../utils/axiosinstance';
+import { API_PATHS } from '../../utils/apiPaths';
+import { UserContext } from '../../context/UserContext';
 
-
-const Signup = () => {
-  const [profilePic, setProfilePic] = useState(null);
+const SignUp = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { updateUser, isAuthenticated } = useContext(UserContext);
+
+  const { login, isAuthenticated } = useContext(UserContext);
   const navigate = useNavigate();
 
   // Redirect if already authenticated
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
 
-  // Handle Signup form Submit
-  const handleSignup = async (e) => {
+  // Handle SignUp form Submit
+  const handleSignUp = async (e) => {
     e.preventDefault();
 
-    let profileImageUrl = "";
-
     if (!fullName) {
-      setError("Please enter your full name");
+      setError('Please enter your full name');
       return;
     }
 
     if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
+      setError('Please enter a valid email address');
       return;
     }
 
     if (!password) {
-      setError("Please enter your password");
+      setError('Please enter a password');
       return;
     }
 
     setError("");
     setIsLoading(true);
 
-    // Signup API Call
+    // Register API Call
     try {
-
-      // Upload image if present
-      if (profilePic) {
-        const imgUploadRes = await uploadImage(profilePic);
-        profileImageUrl = imgUploadRes.imageUrl || "";
-      }
-
-      // Signup API Call
-      await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
+      const response = await axiosInstance.post(API_PATHS.AUTH.REGISTER, {
         fullName,
         email,
-        password,
-        profileImageUrl
+        password
       });
+      const { token, user } = response.data;
 
-      // Handle custom error block removed as backend now returns 409 for conflicts
-
-      // We don't auto-login anymore. Redirect to login.
-      navigate("/login");
+      if (token) {
+        // Use the login function from context for proper session management
+        login(user, token);
+        navigate('/dashboard');
+      }
     } catch (error) {
-      if (error.response && error.response.data.message) {
+      if (error.response) {
         setError(error.response.data.message);
       } else {
         setError("Something went wrong. Please try again later.");
       }
-      setIsLoading(false);
+      setIsLoading(false); 
     }
-  };
+  }
 
   return (
     <AuthLayout showRight={true}>
       <div className="w-full max-w-md mx-auto flex flex-col justify-center flex-1">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-3 text-[var(--color-text)]">Create account</h1>
+          <h1 className="text-4xl font-bold mb-3 text-[var(--color-text)]">Create an account</h1>
           <p className="text-lg text-[var(--color-text)] opacity-70">
-            Start tracking your finances today
+            Sign up to get started with FinRace
           </p>
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-5">
-          <ProfilePhotoSelector image={profilePic} setImage={setProfilePic} />
-
+        <form onSubmit={handleSignUp} className="space-y-5">
           <Input
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
@@ -121,11 +106,11 @@ const Signup = () => {
           <Input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            label="Password"
-            placeholder="At least 8 characters"
-            type="password"
             id="password"
             name="password"
+            label="Password"
+            placeholder="Create a strong password"
+            type="password"
             disabled={isLoading}
           />
 
@@ -136,7 +121,7 @@ const Signup = () => {
             disabled={isLoading}
             className={`w-full px-6 py-3 bg-primary text-white rounded-lg font-medium text-base transition-colors shadow-md hover:shadow-lg cursor-pointer ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-primary/90'}`}
           >
-            {isLoading ? "Creating Account..." : "Sign up"}
+            {isLoading ? "Signing up..." : "Sign up"}
           </button>
 
           <p className="text-sm text-[var(--color-text)] opacity-70 text-center">
@@ -148,7 +133,7 @@ const Signup = () => {
         </form>
       </div>
     </AuthLayout>
-  );
-};
+  )
+}
 
-export default Signup;
+export default SignUp
